@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import uz.pdp.simple_crud2.dto.ResponseDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
 import uz.pdp.simple_crud2.entity.Teacher;
+import uz.pdp.simple_crud2.service.TeacherService;
 import uz.pdp.simple_crud2.service.impl.TeacherServiceImpl;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
 @RequestMapping("/api/teachers")
 @RequiredArgsConstructor
 public class TeacherController {
-    private final TeacherServiceImpl teacherService;
+    private final TeacherService teacherService;
 
     @PostMapping
     ResponseDTO<Teacher> createTeacher(@RequestBody @Valid TeacherCreateDTO teacherCreateDTO) {

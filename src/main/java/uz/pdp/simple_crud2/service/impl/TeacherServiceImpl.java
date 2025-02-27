@@ -6,13 +6,11 @@ import org.springframework.stereotype.Service;
 import uz.pdp.simple_crud2.dto.ErrorDTO;
 import uz.pdp.simple_crud2.dto.ResponseDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
-import uz.pdp.simple_crud2.entity.Student;
 import uz.pdp.simple_crud2.entity.Teacher;
 import uz.pdp.simple_crud2.mapper.TeacherMapper;
 import uz.pdp.simple_crud2.repository.StudentRepository;
 import uz.pdp.simple_crud2.repository.TeacherRepository;
 import uz.pdp.simple_crud2.service.TeacherService;
-import uz.pdp.simple_crud2.validation.TeacherValidation;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +21,6 @@ import java.util.Optional;
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherMapper teacherMapper;
     private final TeacherRepository teacherRepository;
-    private final TeacherValidation teacherValidation;
     private final StudentRepository studentRepository;
 
     @Override
@@ -64,14 +61,6 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseDTO<TeacherCreateDTO> updateTeacher(@NonNull TeacherCreateDTO teacherCreateDTO,
                                                        @NonNull Integer teacherId) {
-        List<ErrorDTO> errors = teacherValidation.errorDTOS(teacherCreateDTO);
-        if (!errors.isEmpty()) {
-            return ResponseDTO.<TeacherCreateDTO>builder()
-                    .code(-1)
-                    .message("Student validation error")
-                    .build();
-        }
-
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherId));
         teacher.setPhoneNumber(teacherCreateDTO.getPhoneNumber());
@@ -90,7 +79,6 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseDTO<TeacherCreateDTO> deleteTeacher(@NonNull Integer teacherId) {
         Optional<Teacher> teacherOptional = teacherRepository.findById(teacherId);
-        System.out.println("teacherOptional = " + teacherOptional);
         if (teacherOptional.isPresent()) {
             Teacher teacher = teacherOptional.get();
             studentRepository.deleteStudentsByTeacherId(teacher.getId());
