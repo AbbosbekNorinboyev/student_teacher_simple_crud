@@ -3,10 +3,10 @@ package uz.pdp.simple_crud2.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import uz.pdp.simple_crud2.dto.ErrorDTO;
 import uz.pdp.simple_crud2.dto.ResponseDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
 import uz.pdp.simple_crud2.entity.Teacher;
+import uz.pdp.simple_crud2.exception.ResourceNotFoundException;
 import uz.pdp.simple_crud2.mapper.TeacherMapper;
 import uz.pdp.simple_crud2.repository.StudentRepository;
 import uz.pdp.simple_crud2.repository.TeacherRepository;
@@ -38,7 +38,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseDTO<Teacher> getTeacher(@NonNull Integer id) {
         Teacher teacher = teacherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Teacher not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + id));
         return ResponseDTO.<Teacher>builder()
                 .code(200)
                 .success(true)
@@ -62,7 +62,7 @@ public class TeacherServiceImpl implements TeacherService {
     public ResponseDTO<TeacherCreateDTO> updateTeacher(@NonNull TeacherCreateDTO teacherCreateDTO,
                                                        @NonNull Integer teacherId) {
         Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherId));
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + teacherId));
         teacher.setPhoneNumber(teacherCreateDTO.getPhoneNumber());
         teacher.setSubject(teacherCreateDTO.getSubject());
         teacher.setUpdatedAt(LocalDateTime.now());

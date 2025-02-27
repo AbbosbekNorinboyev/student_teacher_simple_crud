@@ -10,6 +10,7 @@ import uz.pdp.simple_crud2.dto.StudentCreateDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
 import uz.pdp.simple_crud2.entity.Student;
 import uz.pdp.simple_crud2.entity.Teacher;
+import uz.pdp.simple_crud2.exception.ResourceNotFoundException;
 import uz.pdp.simple_crud2.mapper.StudentMapper;
 import uz.pdp.simple_crud2.repository.StudentRepository;
 import uz.pdp.simple_crud2.repository.TeacherRepository;
@@ -30,7 +31,7 @@ public class StudentServiceImpl implements StudentService {
     public ResponseDTO<Student> createStudent(@NonNull StudentCreateDTO studentCreateDTO,
                                               @NonNull Integer teacherId) {
         Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new RuntimeException("Teacher not found: " + teacherId));
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + teacherId));
         Student student = studentMapper.toEntity(studentCreateDTO);
         student.setTeacher(teacher);
         studentRepository.save(student);
@@ -45,7 +46,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public ResponseDTO<Student> getStudent(@NonNull Integer id) {
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found: " + id));
         System.out.println("student = " + student);
         return ResponseDTO.<Student>builder()
                 .code(200)

@@ -1,5 +1,6 @@
 package uz.pdp.simple_crud2.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -31,5 +32,25 @@ public class GlobalExceptionHandler {
                         .errors(errors)
                         .build()
         );
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ResponseDTO<Void>> handleResourceNotFoundException(ResourceNotFoundException resourceNotFoundException) {
+        ResponseDTO<Void> responseDTO = ResponseDTO.<Void>builder()
+                .code(HttpStatus.NOT_FOUND.value())
+                .message(resourceNotFoundException.getMessage())
+                .success(false)
+                .build();
+        return new ResponseEntity<>(responseDTO, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ResponseDTO<Void>> handleException(Exception exception) {
+        ResponseDTO<Void> responseDTO = ResponseDTO.<Void>builder()
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Something wrong -> " + exception.getMessage())
+                .success(false)
+                .build();
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
