@@ -1,10 +1,10 @@
 package uz.pdp.simple_crud2.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
-import uz.pdp.simple_crud2.dto.ErrorDTO;
 import uz.pdp.simple_crud2.dto.ResponseDTO;
 import uz.pdp.simple_crud2.dto.StudentCreateDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
@@ -36,7 +36,7 @@ public class StudentServiceImpl implements StudentService {
         student.setTeacher(teacher);
         studentRepository.save(student);
         return ResponseDTO.<Student>builder()
-                .code(200)
+                .code(HttpStatus.OK.value())
                 .success(true)
                 .message("Successfully saved")
                 .data(student)
@@ -49,7 +49,7 @@ public class StudentServiceImpl implements StudentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found: " + id));
         System.out.println("student = " + student);
         return ResponseDTO.<Student>builder()
-                .code(200)
+                .code(HttpStatus.OK.value())
                 .success(true)
                 .message("OK")
                 .data(student)
@@ -60,7 +60,7 @@ public class StudentServiceImpl implements StudentService {
     public ResponseDTO<List<Student>> getAllStudent() {
         List<Student> students = studentRepository.findAll();
         return ResponseDTO.<List<Student>>builder()
-                .code(200)
+                .code(HttpStatus.OK.value())
                 .success(true)
                 .message("OK")
                 .data(students)
@@ -74,7 +74,7 @@ public class StudentServiceImpl implements StudentService {
         Optional<Teacher> optional = teacherRepository.findById(teacherId);
         if (optional.isEmpty()) {
             ResponseEntity.badRequest().body(ResponseDTO.<TeacherCreateDTO>builder()
-                    .code(404)
+                    .code(HttpStatus.NOT_FOUND.value())
                     .message("Teacher not found")
                     .build());
         }
@@ -88,7 +88,7 @@ public class StudentServiceImpl implements StudentService {
             studentRepository.save(student);
             return ResponseEntity.ok().body(
                     ResponseDTO.<StudentCreateDTO>builder()
-                            .code(200)
+                            .code(HttpStatus.OK.value())
                             .success(true)
                             .message("UPDATED")
                             .build());
@@ -96,7 +96,7 @@ public class StudentServiceImpl implements StudentService {
 
         return ResponseEntity.badRequest().body(
                 ResponseDTO.<StudentCreateDTO>builder()
-                        .code(404)
+                        .code(HttpStatus.NOT_FOUND.value())
                         .message("Student not found")
                         .build());
     }
