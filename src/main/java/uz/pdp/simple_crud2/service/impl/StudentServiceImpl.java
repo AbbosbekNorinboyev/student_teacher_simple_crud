@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import uz.pdp.simple_crud2.dto.ErrorDTO;
 import uz.pdp.simple_crud2.dto.ResponseDTO;
 import uz.pdp.simple_crud2.dto.StudentCreateDTO;
 import uz.pdp.simple_crud2.dto.TeacherCreateDTO;
@@ -15,6 +16,7 @@ import uz.pdp.simple_crud2.mapper.StudentMapper;
 import uz.pdp.simple_crud2.repository.StudentRepository;
 import uz.pdp.simple_crud2.repository.TeacherRepository;
 import uz.pdp.simple_crud2.service.StudentService;
+import uz.pdp.simple_crud2.validation.StudentValidation;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,10 +28,20 @@ public class StudentServiceImpl implements StudentService {
     private final StudentMapper studentMapper;
     private final TeacherRepository teacherRepository;
     private final StudentRepository studentRepository;
+    private final StudentValidation studentValidation;
 
     @Override
     public ResponseDTO<Student> createStudent(@NonNull StudentCreateDTO studentCreateDTO,
                                               @NonNull Integer teacherId) {
+        List<ErrorDTO> errors = studentValidation.validate(studentCreateDTO);
+        if (!errors.isEmpty()){
+            return ResponseDTO.<Student>builder()
+                    .code(HttpStatus.BAD_REQUEST.value())
+                    .message("Validation error")
+                    .success(false)
+                    .errors(errors)
+                    .build();
+        }
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + teacherId));
         Student student = studentMapper.toEntity(studentCreateDTO);

@@ -33,8 +33,8 @@ public class TeacherServiceImpl implements TeacherService {
         if (!errors.isEmpty()) {
             return ResponseDTO.<Teacher>builder()
                     .code(HttpStatus.BAD_REQUEST.value())
-                    .success(true)
                     .message("Validation error")
+                    .success(false)
                     .errors(errors)
                     .build();
         }
