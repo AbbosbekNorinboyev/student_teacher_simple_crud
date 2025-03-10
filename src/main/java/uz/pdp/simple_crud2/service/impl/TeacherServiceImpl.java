@@ -1,6 +1,7 @@
 package uz.pdp.simple_crud2.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TeacherServiceImpl implements TeacherService {
     private final TeacherMapper teacherMapper;
     private final TeacherRepository teacherRepository;
@@ -31,6 +33,7 @@ public class TeacherServiceImpl implements TeacherService {
     public ResponseDTO<Teacher> createTeacher(@NonNull TeacherCreateDTO teacherCreateDTO) {
         List<ErrorDTO> errors = teacherValidation.validate(teacherCreateDTO);
         if (!errors.isEmpty()) {
+            log.info("Teacher validation error");
             return ResponseDTO.<Teacher>builder()
                     .code(HttpStatus.BAD_REQUEST.value())
                     .message("Validation error")
@@ -40,6 +43,7 @@ public class TeacherServiceImpl implements TeacherService {
         }
         Teacher teacher = teacherMapper.toEntity(teacherCreateDTO);
         teacherRepository.save(teacher);
+        log.info("Teacher successfully created");
         return ResponseDTO.<Teacher>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -52,6 +56,7 @@ public class TeacherServiceImpl implements TeacherService {
     public ResponseDTO<Teacher> getTeacher(@NonNull Integer id) {
         Teacher teacher = teacherRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found: " + id));
+        log.info("Teacher successfully found");
         return ResponseDTO.<Teacher>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -63,6 +68,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public ResponseDTO<List<Teacher>> getAllTeacher() {
         List<Teacher> teachers = teacherRepository.findAll();
+        log.info("Teacher list successfully found");
         return ResponseDTO.<List<Teacher>>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -80,7 +86,7 @@ public class TeacherServiceImpl implements TeacherService {
         teacher.setSubject(teacherCreateDTO.getSubject());
         teacher.setUpdatedAt(LocalDateTime.now());
         teacherRepository.save(teacher);
-
+        log.info("Teacher successfully updated");
         return ResponseDTO.<TeacherCreateDTO>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -96,7 +102,7 @@ public class TeacherServiceImpl implements TeacherService {
             Teacher teacher = teacherOptional.get();
             studentRepository.deleteStudentsByTeacherId(teacher.getId());
             teacherRepository.delete(teacher);
-
+            log.info("Teacher and Student successfully deleted");
             return ResponseDTO.<TeacherCreateDTO>builder()
                     .code(HttpStatus.OK.value())
                     .success(true)

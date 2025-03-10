@@ -1,6 +1,7 @@
 package uz.pdp.simple_crud2.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StudentServiceImpl implements StudentService {
     private final StudentMapper studentMapper;
     private final TeacherRepository teacherRepository;
@@ -34,7 +36,8 @@ public class StudentServiceImpl implements StudentService {
     public ResponseDTO<Student> createStudent(@NonNull StudentCreateDTO studentCreateDTO,
                                               @NonNull Integer teacherId) {
         List<ErrorDTO> errors = studentValidation.validate(studentCreateDTO);
-        if (!errors.isEmpty()){
+        if (!errors.isEmpty()) {
+            log.error("createStudent validation error");
             return ResponseDTO.<Student>builder()
                     .code(HttpStatus.BAD_REQUEST.value())
                     .message("Validation error")
@@ -47,6 +50,7 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentMapper.toEntity(studentCreateDTO);
         student.setTeacher(teacher);
         studentRepository.save(student);
+        log.info("Student successfully created");
         return ResponseDTO.<Student>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -59,7 +63,7 @@ public class StudentServiceImpl implements StudentService {
     public ResponseDTO<Student> getStudent(@NonNull Integer id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found: " + id));
-        System.out.println("student = " + student);
+        log.info("Student successfully found");
         return ResponseDTO.<Student>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -71,6 +75,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public ResponseDTO<List<Student>> getAllStudent() {
         List<Student> students = studentRepository.findAll();
+        log.info("Student list successfully found");
         return ResponseDTO.<List<Student>>builder()
                 .code(HttpStatus.OK.value())
                 .success(true)
@@ -85,6 +90,7 @@ public class StudentServiceImpl implements StudentService {
                                                                        @NonNull Integer teacherId) {
         Optional<Teacher> optional = teacherRepository.findById(teacherId);
         if (optional.isEmpty()) {
+            log.error("Teacher not found");
             ResponseEntity.badRequest().body(ResponseDTO.<TeacherCreateDTO>builder()
                     .code(HttpStatus.NOT_FOUND.value())
                     .message("Teacher not found")
@@ -98,6 +104,7 @@ public class StudentServiceImpl implements StudentService {
             student.setUpdatedAt(LocalDateTime.now());
             student.setTeacher(teacher);
             studentRepository.save(student);
+            log.info("Student successfully updated");
             return ResponseEntity.ok().body(
                     ResponseDTO.<StudentCreateDTO>builder()
                             .code(HttpStatus.OK.value())
